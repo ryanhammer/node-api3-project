@@ -1,4 +1,4 @@
-const users = require('../users/users-model');
+const Posts = require('../users/users-model');
 const Users = require('../users/users-model');
 
 function logger(req, res, next) {
@@ -28,12 +28,19 @@ const validateUserId = async (req, res, next) => {
 }
 
 function validateUser(req, res, next) {
-  // DO YOUR MAGIC
+  if (!req.body.user) {
+    next({
+      status: 400,
+      message: "missing required name field"
+    });
+  } else {
+    next();
+  }
 }
 
-function validateuser(req, res, next) {
+function validatePost(req, res, next) {
   // DO YOUR MAGIC
 }
 
 // do not forget to expose these functions to other modules
-module.exports = { logger, validateUserId };
+module.exports = { logger, validateUserId, validateUser };
