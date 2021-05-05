@@ -10,7 +10,7 @@ const { validateUserId, validateUser, validatePost } = require('../middleware/mi
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  Users.find(req.query)
+  Users.get(req.query)
     .then(users => {
       res.status(200).json(users);
     })
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
       res.status(500).json({
         message: "The users information could not be retrieved",
       });
-    });
+    })
 });
 
 router.get('/:id', validateUserId, (req, res) => {
@@ -27,7 +27,7 @@ router.get('/:id', validateUserId, (req, res) => {
 });
 
 router.post('/', validateUser, (req, res) => {
-  Users.add(req.body)
+  Users.insert(req.body)
     .then(user => {
       res.status(201).json(user);
     })
@@ -40,23 +40,55 @@ router.post('/', validateUser, (req, res) => {
 });
 
 router.put('/:id', validateUser, validateUserId, (req, res) => {
-  res.status(201).json(req.user);
+  Users.update(req.params.id, req.body)
+    .then(user => {
+      res.status(201).json(user);
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: error.message,
+        stack: error.stack
+      });
+    })
 });
 
-router.delete('/:id', (req, res) => {
-  // RETURN THE FRESHLY DELETED USER OBJECT
-  // this needs a middleware to verify user id
+router.delete('/:id', validateUserId, (req, res) => {
+  Users.remove(req.params.id)
+    .then( () => {
+      res.status(200).json({ message: "The user information has been removed" });
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: error.message,
+        stack: error.stack
+      });
+    })
 });
 
-router.get('/:id/posts', (req, res) => {
-  // RETURN THE ARRAY OF USER POSTS
-  // this needs a middleware to verify user id
+router.get('/:id/posts', validateUserId, (req, res) => {
+  Users.getUserPosts(req.params.id)
+    .then(userPosts => {
+      res.status(200).json(userPosts);
+    })
+    .catch(error => {
+      res.status(500).json({
+        message: error.message,
+        stack: error.stack
+      });
+    })
 });
 
-router.post('/:id/posts', (req, res) => {
-  // RETURN THE NEWLY CREATED USER POST
-  // this needs a middleware to verify user id
-  // and another middleware to check that the request body is valid
+router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
+ Posts.insert(req.body)
+  .then(post => {
+    res.status(201).json(post);
+  })
+  .catch(error => {
+    res.status(500).json({
+      message: error.message,
+      stack: error.stack
+    });
+  })
 });
 
 // do not forget to export the router
