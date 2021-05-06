@@ -28,7 +28,7 @@ router.get('/:id', validateUserId, (req, res) => {
 
 router.post('/', validateUser, (req, res) => {
   Users.insert(req.body)
-    .then(user => {
+    .then((user) => {
       res.status(201).json(user);
     })
     .catch(error => {
@@ -39,9 +39,12 @@ router.post('/', validateUser, (req, res) => {
     })
 });
 
-router.put('/:id', validateUser, validateUserId, (req, res) => {
+router.put('/:id', validateUserId, validateUser, (req, res) => {
   Users.update(req.params.id, req.body)
-    .then(user => {
+    .then( () => {
+      return Users.getById(req.params.id)
+    })
+    .then( (user) => {
       res.status(201).json(user);
     })
     .catch(error => {
@@ -55,7 +58,7 @@ router.put('/:id', validateUser, validateUserId, (req, res) => {
 router.delete('/:id', validateUserId, (req, res) => {
   Users.remove(req.params.id)
     .then( () => {
-      res.status(200).json({ message: "The user information has been removed" });
+      res.status(200).json(req.user);
     })
     .catch(error => {
       res.status(500).json({
@@ -80,8 +83,8 @@ router.get('/:id/posts', validateUserId, (req, res) => {
 
 router.post('/:id/posts', validatePost, validateUserId, (req, res) => {
  Posts.insert(req.body)
-  .then(post => {
-    res.status(201).json(post);
+  .then(newPost => {
+    res.status(201).json(newPost);
   })
   .catch(error => {
     res.status(500).json({
